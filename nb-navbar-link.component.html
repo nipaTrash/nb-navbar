@@ -1,0 +1,9 @@
+<div 
+    class="nav__link"
+    [ngStyle]="customCss"
+    (mouseover)="mouseOverStat = true"
+    (mouseleave)="mouseOverStat = false"
+    [@btnHoverFadeState] = "(mouseOverStat && customAnimations  && customAnimations['fade']) ? customAnimations['fade'] : 'none'"
+    [@btnHoverZoomState] = "(mouseOverStat && customAnimations  && customAnimations['zoom']) ? customAnimations['zoom'] : 'none'"
+
+>{{nameDspl}}</div>

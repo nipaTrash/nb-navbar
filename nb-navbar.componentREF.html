@@ -1,0 +1,165 @@
+<div class="headerr">
+    <div class="header__logo">
+        <a  class="navbar-brand" 
+            routerLink="/" 
+            *ngIf="!userProfile.name || (navbarState | async).on == 'custom'; else userProfileName"
+        >NothingBut</a>  
+
+        <ng-template #userProfileName>
+                <a class="navbar-brand" [routerLink]="'/'+userProfile?.urlName">{{ userProfile?.name }}</a>
+        </ng-template>
+    </div>
+    <div class="search">
+        <input type="text" class="seach__input">
+        <!-- <button class="search__btn">
+            <svg class="search__icon">
+                <use xlink:href="./assets/img/sprite.svg#icon-magnifying-glass"></use>
+            </svg>
+        </button> -->
+    </div>
+    <!-- <div class="navigation">-->
+        <nav class="header__navigation"> 
+            <ul class="nav">
+                <li class="nav__item" *ngIf="userProfile.id; else unloggedSignOptions"><a href="#" class="nav__link" (click)="logout()">{{ 'logout' | JsNgTranslator | async }}</a></li>
+                        
+                <ng-template #unloggedSignOptions>
+                    <li class="nav__item"><a href="#" class="nav__link" routerLink="/signup">{{ 'signup' | JsNgTranslator | async }}</a></li>
+                    <li class="nav__item"><a href="#" class="nav__link" routerLink="/signin">{{ 'login' | JsNgTranslator | async }}</a></li>
+                </ng-template>
+            </ul>
+        </nav>
+
+    <!--</div> -->
+    
+</div>
+
+
+<div class="navbar navbar-expand-lg navbar-light" [ngStyle]="customNavBarCsss">
+    <div class="container-fluid">
+
+
+        <!-- <div class="navbar-header">
+            <a  class="navbar-brand" 
+                routerLink="/" 
+                *ngIf="!userProfile.name || (navbarState | async).on == 'custom'; else userProfileName"
+            >NothingBut</a>  
+
+            <ng-template #userProfileName>
+                    <a class="navbar-brand" [routerLink]="'/'+userProfile?.urlName">{{ userProfile?.name }}</a>
+            </ng-template>
+        </div> -->
+
+        <div class="collapse navbar-collapse">
+            
+            <!-- ****************LOGGED NAVBAR LINKS***************** -->
+
+            <ul class="nav navbar-nav" *ngIf="(navbarState | async).on == 'home' && userProfile.id">
+
+                <li *ngFor="let page of nbLoggedPages" routerLinkActive="active" [routerLinkActiveOptions] = "{exact:true}"> 
+                    <nb-navbar-link routerLink="/{{page==='home'? '' : page}}" [nameDspl]="page | JsNgTranslator | async"></nb-navbar-link>
+                </li>
+
+            </ul>
+            
+            <!-- ****************UNLOGGED NAVBAR LINKS***************** -->
+            <ul class="nav navbar-nav" *ngIf="!userProfile.id">
+
+                <li *ngFor="let page of nbUnloggedPages" routerLinkActive="active" [routerLinkActiveOptions] = "{exact:true}"> 
+                    <nb-navbar-link routerLink="/{{page==='home'? '' : page}}" [nameDspl]="page | JsNgTranslator | async"></nb-navbar-link>
+                </li>
+
+            </ul>
+
+            <!-- ****************DESK NAVBAR LINKS***************** -->
+            <ul class="nav navbar-nav" *ngIf="(navbarState | async).on == 'desk'">
+                <li *ngFor="let page of nbDeskPages" routerLinkActive="active" [routerLinkActiveOptions] = "{exact:true}"> 
+                    <nb-navbar-link routerLink="/{{page==='home'? '' : page}}" [nameDspl]="page | JsNgTranslator | async"></nb-navbar-link>
+                </li>
+            </ul>
+            
+            <!-- ****************CUSTOM NAVBAR LINKS***************** -->
+            <ul class="nav navbar-nav" *ngIf="(navbarState | async).on == 'custom'">
+                <li     
+                    *ngFor="let li of (navbarState | async).order" 
+                    style="margin:0px 10px"
+                    [class.active]="li == (navbarState | async).active">
+                   
+                    <nb-navbar-link 
+                        (click)="onNavClick(li)" 
+                        [nameDspl]="NavTranslator[li]['dflt']" 
+                        [customCss]="customNavLink"
+                        [customAnimations] = "customNavLinkAnimations"
+                    ></nb-navbar-link>
+
+                </li> 
+            </ul>
+            
+
+            <ul class="nav navbar-nav navbar-right">
+
+                <!-- ****************SIGN OPTIONS***************** -->
+                <li class="nav-item" *ngIf="userProfile.id; else unloggedSignOptions"><a class="nav-link" (click)="logout()">{{ 'logout' | JsNgTranslator | async }}</a></li>
+                
+                <ng-template #unloggedSignOptions>
+                    <li class="nav-item"><a class="nav-link" routerLink="/signup">{{ 'signup' | JsNgTranslator | async }}</a></li>
+                    <li class="nav-item"><a class="nav-link" routerLink="/signin">{{ 'login' | JsNgTranslator | async }}</a></li>
+                </ng-template>
+               
+
+
+                <!-- ****************USER PROFILES SELECTOR***************** -->
+                <li class="nav-item dropdown" appDropdown  *ngIf="user.profilesDetails && user.profiles.length > 1">
+                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ 'profiles' | JsNgTranslator | async }}</a>
+                    <ul class="dropdown-menu">
+                        <div *ngFor="let key of user.profiles">
+                            <li *ngIf="key.id !== userProfile.id">
+                                <a   class="dropdown-item" [ngStyle]="{'background-color': key.color}" (click)="changeUserProfile(key)">{{ user.profilesDetails[key.id]?.name }}</a>
+                            </li>
+                        </div>
+                        <li (click)="onEditUserProfiles()">Editar</li>
+                    </ul>
+                </li>
+
+
+
+                <!--<li class="nav-item dropdown" appDropdown *ngIf="(authState | async).authenticated">-->
+
+
+                <!-- ****************OPTIONS***************** -->
+                <li class="nav-item dropdown" appDropdown *ngIf="userProfile.id">
+                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ 'options' | JsNgTranslator | async }}<span class="caret"></span></a>
+                    <div class="dropdown-menu">
+                        <div *ngIf="userPrivileges.indexOf(privilegesOptions.editCustomSite) > -1">
+                            <a class="dropdown-item" (click)="editCustomSite()" *ngIf="!isEditingCustomSite">Editar Custom Site</a>
+                            <a class="dropdown-item" (click)="exitEditCustomSite()" *ngIf="isEditingCustomSite">Salir de editar</a>         
+                        </div>
+                        <div>
+                            <a class="dropdown-item" [routerLink]="'/'+nbRoutes.editUser">{{ 'personalInfo' | JsNgTranslator | async }}</a>
+                        </div>
+                        <div *ngIf="userPrivileges.indexOf(privilegesOptions.editProfile) > -1">
+                            <a class="dropdown-item" [routerLink]="'/'+nbRoutes.editProfile">{{ 'edit profile' | JsNgTranslator | async }}</a>
+                        </div>
+                        <div>
+                            <a class="dropdown-item" [routerLink]="'/'+nbRoutes.newProfile">{{ 'create profile' | JsNgTranslator | async }}</a>
+                        </div>
+                        <div>
+                            <a class="dropdown-item" [routerLink]="'/'+nbRoutes.newEvent">{{ 'create event' | JsNgTranslator | async }}</a>
+                        </div>
+                        <div>
+                            <a class="dropdown-item" (click)="onUploadPost()">{{ 'upload post' | JsNgTranslator | async }}</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- ****************LANGS***************** -->
+                <li class="nav-item dropdown" appDropdown>
+                    <a class="nav-link dropdown-toggle" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{lang | JsNgTranslator | async}}<span class="caret"></span></a>
+                    <div class="dropdown-menu">
+                        <a *ngFor="let lang of langs" class="dropdown-item" (click)="changeLang(lang)">{{lang | JsNgTranslator | async}}</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+</div>
